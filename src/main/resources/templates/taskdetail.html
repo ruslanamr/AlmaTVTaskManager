@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Home</title>
+</head>
+<body>
+<div th:insert="~{navbar}"></div>
+<br>
+<h3 style="text-align: center; color: #0a53be">
+  Детальная информация по задаче: <span th:text="${task.name}"></span>
+</h3>
+<br>
+<div class="container">
+  <br>
+  <div class="card mt-3 col-6 me-auto">
+    <div class="card-header">
+      <h6 class="text-secondary">Адресаты:</h6>
+      <div th:each="u : ${task.user}">
+        <h5 th:text="${u.name} + ' ' + ${u.surname}"></h5>
+      </div>
+
+      <h6 class="text-secondary">Дата и время</h6>
+      <h5 th:text="${task.dateTimeLog}" ></h5>
+      <h6 class="text-secondary">Статус</h6>
+      <h5 th:text="${task.status}"
+          th:style="${task.status eq 'В процессе'}? 'color: red' : 'color: green'"></h5>
+      <h6 class="text-secondary">Срок исполнения</h6>
+      <h5 th:text="${task.deadLine}" ></h5>
+    </div>
+    <div class="card-body">
+      <h6 class="text-secondary">Описание</h6>
+      <h5 th:text="${task.description}" ></h5>
+      <h6 class="text-secondary">Комментарии</h6>
+      <h5 th:text="${task.comment}" ></h5>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary" data-bs-toggle="modal" sec:authorize="hasAnyRole('ROLE_ADMIN')"
+              data-bs-target="#updateTask" >Редактировать</button>
+      <button class="btn btn-primary" data-bs-toggle="modal"
+              data-bs-target="#updateTaskStatus" >Изменить статус</button>
+      <button class="btn btn-danger" data-bs-toggle="modal" sec:authorize="hasAnyRole('ROLE_ADMIN')"
+              data-bs-target="#deleteTask"  >Удалить</button>
+    </div>
+
+  </div>
+</div>
+
+<form th:action="${'/updateTask'}" method="post">
+  <div class="modal fade" id="updateTask" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Изменение задачи</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label">Адресаты</label>
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th>Выбрать</th>
+              <th>Пользователи</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+              <td><input type="checkbox" name="user" th:value="${user.id}"></td>
+              <td th:text="${user.name} + ' ' +  ${user.surname}"
+                  th:checked="${user == task.user}"
+              ></td>
+            </tr>
+            </tbody>
+          </table>
+
+          <label class="form-label">Название</label>
+          <input name="name" required th:value="${task.name}" type="text" class="form-control">
+
+          <label class="form-label">Срок исполнения</label>
+          <input name="deadLine" th:value="${task.deadLine}" type="datetime-local" class="form-control">
+
+          <label class="form-label">Описание</label>
+          <textarea name="description" th:text="${task.description}" type="text" class="form-control"></textarea>
+          <input type="hidden" required name="id" th:value="${task.id}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+          </button>
+          <button class="btn btn-primary">Изменить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<form th:action="${'/updateTasksStatus'}" method="post">
+  <div class="modal fade" id="updateTaskStatus" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Изменение статуса задачи</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label">Статус</label>
+          <select name="status" required class="form-select">
+            <option>В процессе</option>
+            <option>Завершен</option>
+          </select>
+          <label class="form-label">Комментарии к задаче</label>
+          <textarea name="comment" th:value="${task.comment}" type="text" class="form-control"></textarea>
+          <input type="hidden" name="id" th:value="${task.id}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+          </button>
+          <button class="btn btn-primary">Изменить статус</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+<form th:action="${'/deleteTask/'+task.id}" method="post">
+  <div class="modal fade" id="deleteTask" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Вы уверены, что хотите удалить задачу?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+          <button class="btn btn-primary">Да</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+</body>
+</html>

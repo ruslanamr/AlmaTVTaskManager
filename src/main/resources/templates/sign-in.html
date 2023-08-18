@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>sign-in</title>
+</head>
+<body>
+<br><br>
+    <div th:if="${param.error}" class="alert alert-danger container col-3" role="alert">
+     Неправильный логин или пароль!
+    </div>
+
+<div class="container col-3 ">
+      <b> <h2 style="color: #0a53be; text-align: center"  >AlmaTV</h2></b>
+      <b> <h4 style="text-align: center" >Отдел собственного вещания</h4></b>
+
+      <br>
+      <form th:action="@{'/auth'}" method="post">
+      <input name="user_login" required type="text" class="form-control" placeholder="введите Login">
+        <br>
+      <input name="user_password" required type="password" class="form-control" placeholder="введите пароль">
+        <br>
+        <br>
+      <button style="width: 200px" class="btn btn-primary">Войти</button>
+      </form>
+    </div>
+</body>
+</html>

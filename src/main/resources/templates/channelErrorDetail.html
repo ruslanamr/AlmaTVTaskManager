@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Детали события</title>
+</head>
+<body>
+<div th:insert="~{navbar}"></div>
+<br>
+<h3 style="text-align: center; color: #0a53be">
+  Детальная информация по событию</h3>
+<br>
+<div class="container">
+  <div class="card mt-3 col-6 me-auto">
+    <div class="card-header">
+      <h6 class="text-secondary">Название:</h6>
+      <h5 th:text="${error.name}"></h5>
+      <h6 class="text-secondary">Пользователь</h6>
+      <h5 th:text="${error.user.name} + ' ' + ${error.user.surname}"></h5>
+      <h6 class="text-secondary">Дата и время</h6>
+      <h5 th:text="${error.dateTime}"></h5>
+      <h6 class="text-secondary">Продолжительность</h6>
+      <h5 th:text="${error.duration}"></h5>
+      <h6 class="text-secondary">Тип</h6>
+      <h5 th:text="${error.type}"></h5>
+      <h6 class="text-secondary">Статус</h6>
+      <h5 th:text="${error.status}"
+          th:style="${error.status eq 'В процессе'}? 'color: red' : 'color: green'"></h5>
+      <h6 class="text-secondary">Описание:</h6>
+      <h5 th:text="${error.description}"></h5>
+      <h6 class="text-secondary">Дата и врямя занесения в базу</h6>
+      <p th:text="${error.dateTimeLog}"></p>
+    </div>
+    <div class="card-body">
+      <h6 class="text-secondary">Каналы:</h6>
+      <div th:each="channel : ${error.channels}">
+        <h5 th:text="${channel.name}"></h5>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary" data-bs-toggle="modal"
+              data-bs-target="#updateStatus">Изменить статус
+      </button>
+      <button class="btn btn-danger" data-bs-toggle="modal" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')"
+              data-bs-target="#deleteError">Удалить событие
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<form th:action="${'/updateStatus'}" method="post">
+  <div class="modal fade" id="updateStatus" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Изменение статуса и описания</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <select name="status" class="form-select">
+            <option>В процессе</option>
+            <option>Завершен</option>
+          </select>
+          <label class="form-label">Описание</label>
+          <textarea name="description" th:text="${error.description}" type="text"
+                    class="form-control">
+          </textarea>
+          <input type="hidden" name="id" th:value="${error.id}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+          </button>
+          <button class="btn btn-primary">Изменить статус и описание</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<form th:action="${'/deleteError/'+error.id}" method="post">
+  <div class="modal fade" id="deleteError" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Вы уверены, что хотите удалить событие?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+          <button class="btn btn-primary">Да</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+</body>
+</html>

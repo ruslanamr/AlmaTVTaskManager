@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Home</title>
+</head>
+<body>
+<div th:insert="~{navbar}"></div>
+<br>
+<h3 style="text-align: center; color: #0a53be">
+  Каналы, заведенные на студию
+</h3>
+<br>
+<div class="container">
+<table class="table table-striped table-hover">
+  <thead>
+
+    <tr>
+      <th>ID</th>
+      <th>Название</th>
+      <th>Тип</th>
+      <th>Приоритет</th>
+      <th>Контролирующий</th>
+      <th>Детали</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr th:each="channel : ${channels}">
+    <td th:text="${channel.id}"></td>
+    <td th:text="${channel.name}"></td>
+    <td th:text="${channel.type}"></td>
+    <td th:text="${channel.priority}"></td>
+    <td th:text="${channel.user.name} + ' ' + ${channel.user.surname}"></td>
+    <td>
+      <a th:href="${'/channeldetails/' + channel.id}" class="btn btn-primary">Детали</a>
+    </td>
+  </tr>
+  </tbody>
+</table>
+  <button class="btn btn-primary m-3" data-bs-toggle="modal" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')"
+          data-bs-target="#addChannel">Добавить канал</button>
+</div>
+<form th:action="${'/addChannel'}" method="post">
+  <div class="modal fade" id="addChannel" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Добавление нового канала</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label">Название</label>
+          <input name="name" required type="text" class="form-control">
+
+          <label class="form-label">Входной адрес</label>
+          <input name="inAddress" type="text" class="form-control">
+          <label class="form-label">Выходной адрес</label>
+          <input name="outAddress" type="text" class="form-control">
+          <label class="form-label">Тип</label>
+          <select name="type" class="form-select">
+            <option>HD 16x9</option>
+            <option>SD 16x9</option>
+            <option>SD 4x3</option>
+          </select>
+          <label class="form-label">Приоритет</label>
+          <select name="priority" class="form-select">
+            <option>Высокий</option>
+            <option>Средний</option>
+            <option>Низкий</option>
+          </select>
+          <label class="form-label">Отвественный</label>
+          <select name="user" class="form-select">
+            <option th:each="user : ${users}" th:text="${user.name} + ' ' + ${user.surname}" th:value="${user.id}"></option>
+          </select>
+          <label class="form-label">Описание</label>
+          <textarea name="description" type="text" class="form-control"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+          </button>
+          <button class="btn btn-primary">Добавить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+</body>
+</html>

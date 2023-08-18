@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Home</title>
+</head>
+<body>
+<div th:insert="~{navbar}"></div>
+<br>
+<h3 style="text-align: center; color: #0a53be">
+  Детальная информация по <span th:text="${device.name}"></span>
+</h3>
+<br>
+<div class="container">
+  <br>
+  <div class="card mt-3 col-6 me-auto">
+    <div class="card-header">
+      <h6 class="text-secondary">Адрес:</h6>
+      <h5 th:text="${device.address}" ></h5>
+      <h6 class="text-secondary">Адрес Myltycast:</h6>
+      <h5 th:text="${device.getAddressMultycast()}" ></h5>
+
+    </div>
+    <div class="card-body">
+      <h6 class="text-secondary">Тип</h6>
+      <h5 th:text="${device.type.name}" ></h5>
+      <h6 class="text-secondary">Описание:</h6>
+      <h5 th:text="${device.description}" ></h5>
+    </div>
+    <div class="card-footer" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')">
+      <button class="btn btn-primary" data-bs-toggle="modal"
+              data-bs-target="#updateDevice" >Редактировать</button>
+      <button class="btn btn-danger" data-bs-toggle="modal"
+              data-bs-target="#deleteDevice" >Удалить</button>
+    </div>
+
+  </div>
+</div>
+
+<form th:action="${'/updateDevice'}" method="post">
+  <div class="modal fade" id="updateDevice" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Изменение канала</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label">Тип</label>
+          <select name="type" class="form-select">
+            <option th:each="type : ${devicetypes}" th:text="${type.name}"
+                    th:value="${type.id}" th:selected="${device.type.id}"></option>
+          </select>
+
+          <label class="form-label">Название</label>
+          <input name="name" required th:value="${device.name}" type="text" class="form-control">
+
+          <label class="form-label">Адрес</label>
+          <input name="address" th:value="${device.address}" type="text" class="form-control">
+
+          <label class="form-label">Адрес Myltycast</label>
+          <input name="addressMultycast" th:value="${device.addressMultycast}" type="text" class="form-control">
+
+          <label class="form-label">Описание</label>
+          <textarea name="description" th:text="${device.description}" type="text" class="form-control"></textarea>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+          </button>
+          <button class="btn btn-primary">Изменить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<form th:action="${'/deleteDevice/'+device.id}" method="post">
+  <div class="modal fade" id="deleteDevice" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Вы уверены, что хотите удалить устройство?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+          <button class="btn btn-primary">Да</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+</body>
+</html>

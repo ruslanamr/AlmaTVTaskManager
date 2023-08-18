@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Пользователи</title>
+</head>
+<body>
+<div th:insert="~{navbar}"></div>
+<br>
+<h3 style="text-align: center; color: #0a53be">
+  Список задач
+</h3>
+<br>
+<div class="container">
+  <button class="btn btn-primary m-3" data-bs-toggle="modal"
+          data-bs-target="#addChannel">Добавить задачу
+  </button>
+  <br>
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Название</th>
+      <th>Адресаты</th>
+      <th>Дата и время</th>
+      <th>Срок</th>
+      <th>Статус</th>
+      <th>Детали</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="task : ${tasks}">
+      <td th:text="${task.id}"></td>
+      <td th:text="${task.name}"></td>
+
+      <td>
+        <div th:each="u : ${task.user}">
+          <p th:text="${u.name} + ' ' + ${u.surname}"></p>
+        </div>
+      </td>
+      <td th:text="${task.dateTimeLog}"></td>
+      <td th:text="${task.deadLine}"></td>
+      <td th:text="${task.status}"
+          th:style="${task.status eq 'В процессе'}? 'color: red' : 'color: green'"></td>
+      <td>
+        <a th:href="${'/taskdetails/' + task.id}" class="btn btn-primary">Детали</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+</div>
+<form th:action="${'/addTask'}" method="post">
+  <div class="modal fade" id="addChannel" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Добавление задачи</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+          <label class="form-label">Адресаты</label>
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th>Выбрать</th>
+              <th>Пользователи</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+              <td><input type="checkbox" name="user" th:value="${user.id}"></td>
+              <td th:text="${user.name} + ' ' +  ${user.surname}"></td>
+            </tr>
+            </tbody>
+          </table>
+
+          <label class="form-label">Название</label>
+          <input name="name" required type="text" class="form-control">
+
+          <label class="form-label">Срок исполнения</label>
+          <input name="deadLine"  type="datetime-local" class="form-control">
+
+          <label class="form-label">Описание</label>
+          <textarea name="description" required type="text" class="form-control"></textarea>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+          </button>
+          <button class="btn btn-primary">Добавить</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+</body>
+</html>

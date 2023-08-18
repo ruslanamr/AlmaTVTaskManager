@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Home</title>
+</head>
+<body>
+<div th:insert="~{navbar}"></div>
+<br>
+<h3 style="text-align: center; color: #0a53be">
+  Детальная информация по каналу <span th:text="${channel.name}"></span>
+</h3>
+<br>
+<div class="container">
+  <br>
+  <div class="card mt-3 col-6 me-auto">
+    <div class="card-header">
+      <h6 class="text-secondary">Входной адрес:</h6>
+      <h5 th:text="${channel.inAddress}" ></h5>
+      <h6 class="text-secondary">Выходной адрес:</h6>
+      <h5 th:text="${channel.outAddress}" ></h5>
+      <h6 class="text-secondary">Тип</h6>
+      <h5 th:text="${channel.type}" ></h5>
+    </div>
+    <div class="card-body">
+      <h6 class="text-secondary">Отвественный:</h6>
+      <h5 th:text="${channel.user.name} + ' ' + ${channel.user.surname}" ></h5>
+      <h6 class="text-secondary">Приоритет:</h6>
+      <h5 th:text="${channel.priority}" ></h5>
+      <h6 class="text-secondary">Описание:</h6>
+      <h5 th:text="${channel.description}" ></h5>
+    </div>
+    <div class="card-footer" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')">
+      <button class="btn btn-primary" data-bs-toggle="modal"
+              data-bs-target="#updateChannel" >Редактировать канал</button>
+      <button class="btn btn-danger" data-bs-toggle="modal"
+              data-bs-target="#deleteChannel" >Удалить канал</button>
+    </div>
+
+  </div>
+</div>
+
+<form th:action="${'/updateChannel'}" method="post">
+  <div class="modal fade" id="updateChannel" tabindex="-1" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Изменение канала</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label">Название</label>
+          <input name="name" required th:value="${channel.name}" type="text" class="form-control">
+          <label class="form-label">Входной адрес</label>
+          <input name="inAddress" th:value="${channel.inAddress}" type="text" class="form-control">
+          <label class="form-label">Выходной адрес</label>
+          <input name="outAddress" th:value="${channel.outAddress}" type="text" class="form-control">
+          <label class="form-label">Тип</label>
+          <select name="type" class="form-select">
+            <option th:selected="${channel.type}=='HD 16x9'">HD 16x9</option>
+            <option th:selected="${channel.type}=='SD 16x9'">SD 16x9</option>
+            <option th:selected="${channel.type}=='SD 4x3'">SD 4x3</option>
+          </select>
+          <label class="form-label">Приоритет</label>
+          <select name="priority" class="form-select">
+            <option th:selected="${channel.priority}=='Высокий'">Высокий</option>
+            <option th:selected="${channel.priority}=='Средний'">Средний</option>
+            <option th:selected="${channel.priority}=='Низкий'">Низкий</option>
+          </select>
+          <label class="form-label">Отвественный</label>
+          <select name="user" class="form-select">
+            <option th:each="user : ${users}" th:text="${user.name} + ' ' + ${user.surname}"
+                    th:value="${user.id}" th:selected="${channel.user.id}"></option>
+          </select>
+          <label class="form-label">Описание</label>
+          <textarea name="description" type="text" class="form-control" th:text="${channel.description}"></textarea>
+          <input type="hidden" name="id" th:value="${channel.id}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
+          </button>
+          <button class="btn btn-primary">Изменить канал</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<form th:action="${'/deleteChannel/'+channel.id}" method="post">
+  <div class="modal fade" id="deleteChannel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Вы уверены, что хотите удалить канал?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+          <button class="btn btn-primary">Да</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+</body>
+</html>
