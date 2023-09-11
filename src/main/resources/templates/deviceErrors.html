@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+      xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{sdn}">
   <meta charset="UTF-8">
   <title>Ошибки оборудования</title>
@@ -62,11 +61,7 @@
                   aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <label class="form-label">Пользователь</label>
-          <select name="user" class="form-select">
-            <option th:each="user : ${users}" th:text="${user.name} + ' ' + ${user.surname}" th:value="${user.id}"></option>
-          </select>
-
+          <input type="hidden" name="user" th:value="${#authentication.principal.id}">
           <label class="form-label">Устройство</label>
           <select name="device" class="form-select">
             <option th:each="device : ${devices}" th:text="${device.name}" th:value="${device.id}"></option>
@@ -80,9 +75,15 @@
 
           <label class="form-label">Тип</label>
           <select name="type" class="form-select">
+            <option>Плановое мероприятие</option>
             <option>Аппаратная проблема</option>
             <option>Программная проблема</option>
             <option>Другое</option>
+          </select>
+          <label class="form-label">Статус</label>
+          <select name="status" class="form-select">
+            <option>В процессе</option>
+            <option>Завершен</option>
           </select>
           <label class="form-label">Описание</label>
           <textarea name="description" type="text" class="form-control">

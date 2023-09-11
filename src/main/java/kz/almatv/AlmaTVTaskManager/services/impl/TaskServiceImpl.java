@@ -7,6 +7,7 @@ import kz.almatv.AlmaTVTaskManager.models.Task;
 import kz.almatv.AlmaTVTaskManager.repositories.TaskRepository;
 import kz.almatv.AlmaTVTaskManager.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +18,7 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   public List<Task> getTaskList() {
-    return taskRepository.findAll();
+    return taskRepository.findAll(Sort.by("status").and(Sort.by("id").descending()));
   }
 
   @Override

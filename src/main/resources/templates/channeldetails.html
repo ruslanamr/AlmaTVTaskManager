@@ -25,8 +25,12 @@
       <h5 th:text="${channel.type}" ></h5>
     </div>
     <div class="card-body">
-      <h6 class="text-secondary">Отвественный:</h6>
-      <h5 th:text="${channel.user.name} + ' ' + ${channel.user.surname}" ></h5>
+      <h6 class="text-secondary">Операторы:</h6>
+      <h5>
+        <div th:each="ch : ${channel.getUser()}">
+          <p th:text="${ch.name} + ' ' + ${ch.surname}"></p>
+        </div>
+      </h5>
       <h6 class="text-secondary">Приоритет:</h6>
       <h5 th:text="${channel.priority}" ></h5>
       <h6 class="text-secondary">Описание:</h6>
@@ -72,10 +76,20 @@
             <option th:selected="${channel.priority}=='Низкий'">Низкий</option>
           </select>
           <label class="form-label">Отвественный</label>
-          <select name="user" class="form-select">
-            <option th:each="user : ${users}" th:text="${user.name} + ' ' + ${user.surname}"
-                    th:value="${user.id}" th:selected="${channel.user.id}"></option>
-          </select>
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th>Выбрать</th>
+              <th>Выбрать оператора</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="operator : ${users}">
+              <td><input type="checkbox" name="user" th:value="${operator.id}"></td>
+              <td th:text="${operator.name} + ' ' +${operator.surname}"></td>
+            </tr>
+            </tbody>
+          </table>
           <label class="form-label">Описание</label>
           <textarea name="description" type="text" class="form-control" th:text="${channel.description}"></textarea>
           <input type="hidden" name="id" th:value="${channel.id}">

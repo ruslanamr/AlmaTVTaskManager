@@ -7,6 +7,7 @@ import kz.almatv.AlmaTVTaskManager.repositories.RolesRepository;
 import kz.almatv.AlmaTVTaskManager.repositories.UserRepository;
 import kz.almatv.AlmaTVTaskManager.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
   @Override
   public List<User> getUserList() {
-    return userRepository.findAll();
+    return userRepository.findAll(Sort.by("surname"));
   }
 
   @Override
@@ -97,5 +98,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
       throw new UsernameNotFoundException("Пользователь не найден!");
     }
     return user;
+  }
+
+  @Override
+  public List<User> getUserListEng(String pos) {
+    return userRepository.findAllByPosition(pos);
   }
 }

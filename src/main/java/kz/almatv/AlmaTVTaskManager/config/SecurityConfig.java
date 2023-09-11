@@ -18,7 +18,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 public class SecurityConfig {
 
   @Bean
-  public UserServiceImpl userService(){
+  public UserServiceImpl userService() {
     return new UserServiceImpl();
   }
 

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{sdn}">
+  <meta charset="UTF-8">
+  <title>Reports</title>
+</head>
+<body>
+<div th:insert="~{navbar}"></div>
+<br>
+<h3 style="text-align: center">Выгрузка отчета по оборудованию за период:</h3>
+<div class="container col-4">
+
+  <br>
+  <label class="form-label">Укажите период</label>
+  <input id="date_in" required type="datetime-local" class="form-control">
+  <br>
+  <input id="date_out" required type="datetime-local" class="form-control">
+  <br>
+  <button class="btn btn-primary" onclick="dataload()">Выгрузить на экран</button>
+  <a class="btn btn-success" href="/devicerep">Выгрузить в Excel</a>
+  <br>
+  <br>
+</div>
+<div class="container">
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr>
+
+      <th>№</th>
+      <th>Пользователь</th>
+      <th>Название события</th>
+      <th>Устройство</th>
+      <th>Дата и время</th>
+      <th>Тип</th>
+      <th>Статус</th>
+    </tr>
+    </thead>
+    <tbody id="tabledata">
+    </tbody>
+  </table>
+  <script type="text/javascript">
+    function dataload() {
+      let date_in = document.getElementById("date_in").value;
+      let date_out = document.getElementById("date_out").value;
+      let html = ""
+      let req = new XMLHttpRequest();
+      req.open("GET",
+          "/deviceReportRest?date_in=" + date_in + "&date_out=" + date_out)
+      req.send()
+      req.onreadystatechange = function () {
+        if (req.readyState == XMLHttpRequest.DONE && req.status == 200) {
+          let deviceErr = JSON.parse((req.responseText))
+          if (deviceErr == "") {
+            alert("За выбранный период записей нет!")
+          }
+          for (let i = 0; i < deviceErr.length; i++) {
+            html += "<tr>"
+            html += "<td>" + (i + 1) + "</td>"
+            html += "<td>" + deviceErr[i].user.surname + "</td>"
+            html += "<td>" + deviceErr[i].name + "</td>"
+            html += "<td>" + deviceErr[i].device.name + "</td>"
+            html += "<td>" + deviceErr[i].dateTime + "</td>"
+            html += "<td>" + deviceErr[i].type + "</td>"
+            html += "<td>" + deviceErr[i].status + "</td>"
+            html += "</tr>"
+          }
+          document.getElementById('tabledata').innerHTML = html
+        }
+      }
+    }
+  </script>
+</div>
+</body>
+</html>

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+      xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{sdn}">
   <meta charset="UTF-8">
   <title>Ошибки на каналах</title>
@@ -24,8 +23,8 @@
       <th>ID</th>
       <th>Пользователь</th>
       <th>Название события</th>
-      <th>Дата и время</th>
       <th>Продолжительность</th>
+      <th>Дата и время</th>
       <th>Статус</th>
       <th>Детали</th>
     </tr>
@@ -35,8 +34,8 @@
     <td th:text="${event.id}"></td>
     <td th:text="${event.user.name} + ' ' + ${event.user.surname}"></td>
     <td th:text="${event.name}"></td>
-    <td th:text="${event.dateTime}"></td>
     <td th:text="${event.duration}"></td>
+    <td th:text="${event.dateTime}"></td>
     <td th:text="${event.status}"
         th:style="${event.status eq 'В процессе'}? 'color: red' : 'color: green' "
     ></h6>
@@ -61,10 +60,7 @@
                   aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <label class="form-label">Пользователь</label>
-          <select name="user" class="form-select">
-            <option th:each="user : ${users}" th:text="${user.name} + ' ' + ${user.surname}" th:value="${user.id}"></option>
-          </select>
+          <input type="hidden" name="user" th:value="${#authentication.principal.id}">
           <label class="form-label">Название</label>
           <input name="name" required type="text" class="form-control">
 
@@ -79,6 +75,7 @@
             <option>Пропадание сигнала из-за погодных условий</option>
             <option>ППР</option>
             <option>Работы на стороне компании</option>
+            <option>Проблема с autodetect каналов</option>
             <option>Другое</option>
           </select>
           <table class="table table-striped table-hover">
@@ -95,11 +92,15 @@
             </tr>
             </tbody>
           </table>
+          <label class="form-label">Статус</label>
+          <select name="status" class="form-select">
+            <option>В процессе</option>
+            <option>Завершен</option>
+          </select>
           <label class="form-label">Описание</label>
           <textarea name="description" type="text" class="form-control">
           </textarea>
         </div>
-
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена
           </button>

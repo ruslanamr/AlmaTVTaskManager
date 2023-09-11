@@ -1,27 +1,29 @@
 package kz.almatv.AlmaTVTaskManager.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "comment_channel_errors")
+@Table(name = "comments")
 @Getter
 @Setter
-public class CommentChannelErrors {
-
+public class Comment {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   @ManyToOne
   private User user;
-  private String dateTimeLog;
-  @ManyToOne
-  private ChannelError channelError;
+  private Long channelErrId;
+  @Column(columnDefinition = "TEXT")
+  private String commentText;
+  private LocalDateTime dateTime;
 
 }

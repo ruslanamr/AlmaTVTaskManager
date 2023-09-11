@@ -22,17 +22,19 @@
   <thead>
 
     <tr>
-      <th>ID</th>
       <th>Название</th>
       <th>Тип</th>
+      <th>Адрес</th>
+      <th>Адрес Multycast</th>
       <th>Детали</th>
     </tr>
   </thead>
   <tbody>
   <tr th:each="device : ${devices}">
-    <td th:text="${device.id}"></td>
     <td th:text="${device.name}"></td>
     <td th:text="${device.type.name}"></td>
+    <td th:text="${device.address}"></td>
+    <td th:text="${device.addressMultycast}"></td>
     <td>
       <a th:href="${'/devicedetails/' + device.id}" class="btn btn-primary">Детали</a>
     </td>

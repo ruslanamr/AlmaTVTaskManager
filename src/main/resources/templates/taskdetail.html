@@ -29,6 +29,10 @@
           th:style="${task.status eq 'В процессе'}? 'color: red' : 'color: green'"></h5>
       <h6 class="text-secondary">Срок исполнения</h6>
       <h5 th:text="${task.deadLine}" ></h5>
+      <h6 class="text-secondary">Приоритет</h6>
+      <h5 th:text="${task.priority}"
+          th:style="${task.priority eq 'Высокий'}? 'color: red'">
+      </h5>
     </div>
     <div class="card-body">
       <h6 class="text-secondary">Описание</h6>
@@ -83,6 +87,12 @@
           <label class="form-label">Срок исполнения</label>
           <input name="deadLine" th:value="${task.deadLine}" type="datetime-local" class="form-control">
 
+          <label class="form-label">Приоритет</label>
+          <select name="priority" class="form-select">
+            <option th:selected="${task.priority.equals('Низкий')}">Низкий</option>
+            <option th:selected="${task.priority.equals('Средний')}">Средний</option>
+            <option th:selected="${task.priority.equals('Высокий')}">Высокий</option>
+          </select>
           <label class="form-label">Описание</label>
           <textarea name="description" th:text="${task.description}" type="text" class="form-control"></textarea>
           <input type="hidden" required name="id" th:value="${task.id}">

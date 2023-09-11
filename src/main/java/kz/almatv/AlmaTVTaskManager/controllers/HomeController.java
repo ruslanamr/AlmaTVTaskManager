@@ -1,5 +1,11 @@
 package kz.almatv.AlmaTVTaskManager.controllers;
 
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import kz.almatv.AlmaTVTaskManager.models.Channel;
 import kz.almatv.AlmaTVTaskManager.models.ChannelError;
 import kz.almatv.AlmaTVTaskManager.models.Device;
@@ -12,16 +18,26 @@ import kz.almatv.AlmaTVTaskManager.services.DeviceService;
 import kz.almatv.AlmaTVTaskManager.services.TaskService;
 import kz.almatv.AlmaTVTaskManager.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 
 @Controller
 public class HomeController {
+
 
   @Autowired
   public ChannelService channelService;
@@ -36,14 +52,29 @@ public class HomeController {
   @PreAuthorize("isAnonymous()")
   @GetMapping("/sign-in")
   public String signInPage() {
-    return "/sign-in";
+    return "sign-in";
   }
 
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/accessdenied")
-  public String accessdenied(){
-    return "/accessdenied";
+  public String accessdenied() {
+    return "accessdenied";
   }
+
+  public User getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof AnonymousAuthenticationToken) {
+      return null;
+    }
+    return (User) authentication.getPrincipal();
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/grafik")
+  public String grafik() {
+    return "grafik";
+  }
+
 
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/")
@@ -51,8 +82,8 @@ public class HomeController {
     model.addAttribute("countChannelErr", channelService.getSummChannelErrorsInProcess());
     model.addAttribute("countDeviceErr", deviceService.countDeviceErrInProcess());
     model.addAttribute("countTasks", taskService.countTascksInProcess());
-
-    return "/home";
+    model.addAttribute("channels", channelService.getChannelListByUser(getCurrentUser()));
+    return "home";
   }
 
   @PreAuthorize("isAuthenticated()")
@@ -60,7 +91,7 @@ public class HomeController {
   public String channels(Model model) {
     model.addAttribute("channels", channelService.getChannelList());
     model.addAttribute("users", userService.getUserList());
-    return "/channels";
+    return "channels";
   }
 
   @PreAuthorize("isAuthenticated()")
@@ -68,7 +99,7 @@ public class HomeController {
   public String channeldetails(Model model, @PathVariable Long id) {
     model.addAttribute("channel", channelService.getChannelById(id));
     model.addAttribute("users", userService.getUserList());
-    return "/channeldetails";
+    return "channeldetails";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
@@ -77,12 +108,14 @@ public class HomeController {
     channelService.addChannel(channel);
     return "redirect:/channels";
   }
+
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PostMapping("/updateChannel")
   public String updateChannel(Channel channel) {
     channelService.updateChannel(channel);
     return "redirect:/channeldetails/" + channel.getId();
   }
+
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PostMapping("/deleteChannel/{id}")
   public String deleteChannel(@PathVariable Long id) {
@@ -95,24 +128,25 @@ public class HomeController {
   public String devices(Model model) {
     model.addAttribute("devices", deviceService.getDeviceList());
     model.addAttribute("devicetypes", deviceService.getDeviceTypeList());
-    return "/devices";
+    return "devices";
   }
+
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @GetMapping("/addType")
-  public String deviceTypeForm(){
-    return "/devicetype";
+  public String deviceTypeForm() {
+    return "devicetype";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @PostMapping("/addDevice")
-  public String addDevice(Device device){
+  public String addDevice(Device device) {
     deviceService.addDevice(device);
     return "redirect:/devices";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @PostMapping("/addDeviceType")
-  public String deviceType(DeviceType deviceType){
+  public String deviceType(DeviceType deviceType) {
     deviceService.addDeviceType(deviceType);
     return "redirect:/devices";
   }
@@ -122,7 +156,7 @@ public class HomeController {
   public String devicedetails(Model model, @PathVariable Long id) {
     model.addAttribute("device", deviceService.getDeviceById(id));
     model.addAttribute("devicetypes", deviceService.getDeviceTypeList());
-    return "/devicedetails";
+    return "devicedetails";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
@@ -145,12 +179,12 @@ public class HomeController {
     model.addAttribute("channelErrors", channelService.getChannelErrors());
     model.addAttribute("channels", channelService.getChannelList());
     model.addAttribute("users", userService.getUserList());
-    return "/channelerrors";
+    return "channelerrors";
   }
 
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/addChannelError")
-  public String addChannelError(ChannelError channelError){
+  public String addChannelError(ChannelError channelError) {
     channelService.addChannelError(channelError);
     return "redirect:/channelErrors";
   }
@@ -161,93 +195,93 @@ public class HomeController {
     model.addAttribute("error", channelService.getChannelErrorById(id));
     model.addAttribute("channels", channelService.getChannelList());
     model.addAttribute("users", userService.getUserList());
-    return "/channelErrorDetail";
+    return "channelErrorDetail";
   }
 
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/updateStatus")
   public String updateStatus(@RequestParam String description,
-      @RequestParam String status, @RequestParam Long id){
+      @RequestParam String status, @RequestParam Long id) {
     channelService.updateChannelError(id, status, description);
     return "redirect:/channelErrors";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @PostMapping("/deleteError/{id}")
-  public String deleteError(@PathVariable Long id){
+  public String deleteError(@PathVariable Long id) {
     channelService.deleteChannelErrorById(id);
     return "redirect:/channelErrors";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @GetMapping("/deviceErrors")
-  public String deviceErrors(Model model){
+  public String deviceErrors(Model model) {
     model.addAttribute("deviceError", deviceService.getDeviceErrorList());
     model.addAttribute("devices", deviceService.getDeviceList());
     model.addAttribute("users", userService.getUserList());
-    return "/deviceErrors";
+    return "deviceErrors";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @PostMapping("/addDeviceError")
-  public String addDeviceError(DeviceError deviceError){
+  public String addDeviceError(DeviceError deviceError) {
     deviceService.addDeviceError(deviceError);
     return "redirect:/deviceErrors";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @GetMapping("/deviceErrorDetail/{id}")
-  public String deviceErrorDetail(@PathVariable Long id, Model model){
+  public String deviceErrorDetail(@PathVariable Long id, Model model) {
     model.addAttribute("error", deviceService.getDeviceErrorById(id));
-    return "/deviceErrorDetail";
+    return "deviceErrorDetail";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @PostMapping("/updateErrorDeviceStatus")
   public String updateErrorDeviceStatus(@RequestParam String description,
-      @RequestParam String status, @RequestParam Long id){
+      @RequestParam String status, @RequestParam Long id) {
     deviceService.updateDeviceError(id, status, description);
     return "redirect:/deviceErrors";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @PostMapping("/deleteDeviceError/{id}")
-  public String deleteDeviceError(@PathVariable Long id){
+  public String deleteDeviceError(@PathVariable Long id) {
     deviceService.deleteDeviceErrorById(id);
     return "redirect:/deviceErrors";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @GetMapping("/users")
-  public String users(Model model){
+  public String users(Model model) {
     model.addAttribute("users", userService.getUserList());
     model.addAttribute("roles", userService.getListRole());
-    return "/users";
+    return "users";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @GetMapping("/userdetails/{id}")
-  public String userdetails(@PathVariable Long id, Model model){
+  public String userdetails(@PathVariable Long id, Model model) {
     model.addAttribute("user", userService.getUserById(id));
     model.addAttribute("roles", userService.getListRole());
-    return "/userdetails";
+    return "userdetails";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PostMapping("/addUser")
-  public String addUser(User user, @RequestParam String re_password){
+  public String addUser(User user, @RequestParam String re_password) {
     String result = userService.addUser(user, re_password);
     return "redirect:/" + result;
   }
 
   @GetMapping("/userEditPassword")
-  public String userEditPassword(){
-    return "/userEditPassword";
+  public String userEditPassword() {
+    return "userEditPassword";
   }
 
   @PostMapping("/userEditPassword")
   public String userEditPasswordPost(@RequestParam Long id, @RequestParam String password,
-      @RequestParam String new_password, @RequestParam String re_new_password){
+      @RequestParam String new_password, @RequestParam String re_new_password) {
     String result = userService.updateUserPasswor(id, password, new_password, re_new_password);
     return "redirect:/" + result;
   }
@@ -255,44 +289,44 @@ public class HomeController {
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PostMapping("/updateUser")
-  public String updateUser(User user, @RequestParam String re_password){
+  public String updateUser(User user, @RequestParam String re_password) {
     String result = userService.updateUser(user, re_password);
     return "redirect:/" + result;
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @GetMapping("/addNewUser")
-  public String addNewUser(Model model){
+  public String addNewUser(Model model) {
     model.addAttribute("roles", userService.getListRole());
-    return "/addNewUser";
+    return "addNewUser";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @GetMapping("/tasks")
-  public String tasks(Model model){
-    model.addAttribute("users", userService.getUserList());
+  public String tasks(Model model) {
+    model.addAttribute("users", userService.getUserListEng("Инженер"));
     model.addAttribute("tasks", taskService.getTaskList());
-    return "/tasks";
+    return "tasks";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PostMapping("/addTask")
-  public String addTask(Task task){
+  public String addTask(Task task) {
     taskService.addTask(task);
     return "redirect:/tasks";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @GetMapping("/taskdetails/{id}")
-  public String taskdetails(@PathVariable Long id, Model model){
-    model.addAttribute("users", userService.getUserList());
+  public String taskdetails(@PathVariable Long id, Model model) {
+    model.addAttribute("users", userService.getUserListEng("Инженер"));
     model.addAttribute("task", taskService.getTaskById(id));
-    return "/taskdetail";
+    return "taskdetail";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PostMapping("/deleteTask/{id}")
-  public String deleteTask(@PathVariable Long id){
+  public String deleteTask(@PathVariable Long id) {
     taskService.deleteTaskById(id);
     return "redirect:/tasks";
   }
@@ -300,23 +334,90 @@ public class HomeController {
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 
   @PostMapping("/updateTask")
-  public String updateTask(Task task){
+  public String updateTask(Task task) {
     taskService.updateTask(task);
     return "redirect:/tasks";
   }
+
   @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')")
   @PostMapping("/updateTasksStatus")
   public String updateTasksStatus(@RequestParam String status,
-      @RequestParam String comment, @RequestParam Long id){
+      @RequestParam String comment, @RequestParam Long id) {
     taskService.updateTasksStatus(id, status, comment);
     return "redirect:/tasks";
   }
 
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PostMapping("/deleteUser/{id}")
-  public String deleteUser(@PathVariable Long id){
+  public String deleteUser(@PathVariable Long id) {
     userService.deleteUserById(id);
     return "redirect:/users";
+  }
+
+  @GetMapping("/channelrep")
+  @ResponseBody
+  public ResponseEntity<byte[]> downloadExcelFile() throws IOException {
+    Path filePath = Paths.get("ChannelErrors.xlsx");
+
+    if (!Files.exists(filePath)) {
+      return ResponseEntity.notFound().build();
+    }
+
+    String contentType = Files.probeContentType(filePath);
+    if (contentType == null) {
+      contentType = "application/octet-stream";
+    }
+
+    byte[] fileBytes = Files.readAllBytes(filePath);
+
+    Resource resource = new ByteArrayResource(fileBytes);
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.parseMediaType(contentType));
+    headers.setContentDisposition(
+        ContentDisposition.attachment().filename("ChannelErrors.xlsx").build());
+
+    return ResponseEntity.ok()
+        .headers(headers)
+        .body(resource.getContentAsByteArray());
+  }
+
+  @GetMapping("/devicerep")
+  @ResponseBody
+  public ResponseEntity<byte[]> downloadExcelFile2() throws IOException {
+    Path filePath = Paths.get("DeviceErrors.xlsx");
+
+    if (!Files.exists(filePath)) {
+      return ResponseEntity.notFound().build();
+    }
+
+    String contentType = Files.probeContentType(filePath);
+    if (contentType == null) {
+      contentType = "application/octet-stream";
+    }
+
+    byte[] fileBytes = Files.readAllBytes(filePath);
+
+    Resource resource = new ByteArrayResource(fileBytes);
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.parseMediaType(contentType));
+    headers.setContentDisposition(
+        ContentDisposition.attachment().filename("DeviceErrors.xlsx").build());
+
+    return ResponseEntity.ok()
+        .headers(headers)
+        .body(resource.getContentAsByteArray());
+  }
+
+  @GetMapping("/reportChannel")
+  public String reportChannel() {
+    return "reportChannels";
+  }
+
+  @GetMapping("/reportDevices")
+  public String reportDevice() {
+    return "reportDevices";
   }
 
 }

@@ -10,11 +10,13 @@ import jakarta.persistence.Table;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "task")
 @Getter
 @Setter
+@ToString
 public class Task {
 
   @Id
@@ -27,6 +29,7 @@ public class Task {
   private String dateTimeLog;
   private String status;
   private String deadLine;
+  private String priority;
   @Column(columnDefinition = "TEXT")
   private String description;
   @Column(columnDefinition = "TEXT")

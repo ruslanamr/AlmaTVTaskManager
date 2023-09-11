@@ -32,19 +32,26 @@
         <li class="nav-item" sec:authorize="hasAnyRole('ROLE_ADMIN')">
           <a class="nav-link"  href="/users">Пользователи</a>
         </li>
+        <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Отчеты
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/reportChannel">Отчет по каналам</a></li>
+            <li><a class="dropdown-item" href="/reportDevices">Отчет по оборудованию</a></li>
+          </ul>
+        </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Профиль - <span th:text="${#authentication.principal.name}"></span>
           </a>
           <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/grafik">График дежурств</a></li>
             <li><a class="dropdown-item" href="/userEditPassword">Изменить пароль</a></li>
           </ul>
         </li>
       </ul>
     </div>
-
       <a class="nav-link text-light"  href="/logout">Выйти</a>
   </div>
-
-
 </nav>

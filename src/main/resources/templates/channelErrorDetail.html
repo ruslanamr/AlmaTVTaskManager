@@ -15,6 +15,7 @@
 <div class="container">
   <div class="card mt-3 col-6 me-auto">
     <div class="card-header">
+      <input type="hidden" th:value="${error.id}" id="errId">
       <h6 class="text-secondary">Название:</h6>
       <h5 th:text="${error.name}"></h5>
       <h6 class="text-secondary">Пользователь</h6>
@@ -43,12 +44,92 @@
       <button class="btn btn-primary" data-bs-toggle="modal"
               data-bs-target="#updateStatus">Изменить статус
       </button>
-      <button class="btn btn-danger" data-bs-toggle="modal" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')"
+      <button class="btn btn-danger" data-bs-toggle="modal"
+              sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')"
               data-bs-target="#deleteError">Удалить событие
       </button>
     </div>
 
   </div>
+  <br>
+  <h3>Комментарии:</h3>
+  <div id="commentsContent" class='border border-dark-subtle p-md-3 bg-light col-6 rounded'>
+
+  </div>
+  <br>
+  <div class="col-6">
+    <textarea class="form-control" id="commentText" placeholder="Введите комментарий"></textarea>
+    <input type="hidden" th:value="${#authentication.principal.id}" id="userId">
+    <br>
+    <button class="btn btn-success" onclick="addComment()" type="button">Оставить комментарий
+    </button>
+    <br>
+  </div>
+
+
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+      loadcomments()
+    });
+
+    function loadcomments() {
+      let id = document.getElementById("errId").value;
+      let html = "";
+      let req = new XMLHttpRequest();
+      req.open("GET", "/comments?id=" + id);
+      req.send()
+      req.onload = function () {
+        let comment = JSON.parse(req.responseText)
+        for (let i = 0; i < comment.length; i++) {
+          let dateObj = new Date(comment[i].dateTime);
+          const formatter = new Intl.DateTimeFormat('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+          });
+          let formattedDateTime = formatter.format(dateObj);
+          html += "<h5>" + comment[i].user.name + " " + comment[i].user.surname + "</h5>"
+          html += "<p style='color: #3c86f8'>" + formattedDateTime + "</p>"
+          html += "<p>" + comment[i].commentText + "</p>"
+          html += "<p>________________________________</p>"
+          html += "<br>"
+        }
+        document.getElementById("commentsContent").innerHTML = html;
+      }
+    }
+
+    function addComment() {
+      let errId = document.getElementById("errId").value
+      let userId = document.getElementById("userId").value
+      let commentText = document.getElementById("commentText").value
+      if(commentText===""){
+        alert("Заполните поле комментария!")
+        return;
+      }
+
+      let commentObj = {
+        "user": {
+          "id": userId
+        },
+        "channelErrId": errId,
+        "commentText": commentText
+      }
+      console.log(commentObj);
+      let req = new XMLHttpRequest()
+      req.open("POST", "/comments")
+      req.setRequestHeader("Content-type", "application/json")
+      req.send(JSON.stringify(commentObj))
+      req.onload = function () {
+        loadcomments()
+      }
+      document.getElementById("commentText").value = "";
+    }
+  </script>
+
+
 </div>
 
 <form th:action="${'/updateStatus'}" method="post">

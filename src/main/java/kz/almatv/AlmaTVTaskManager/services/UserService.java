@@ -16,4 +16,5 @@ public interface UserService {
 
   String updateUserPasswor(Long id, String password, String new_password, String re_new_password);
 
+  List<User> getUserListEng(String pos);
 }

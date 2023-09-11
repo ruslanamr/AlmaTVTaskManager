@@ -14,33 +14,41 @@
 </h3>
 <br>
 <div class="container">
-<table class="table table-striped table-hover">
-  <thead>
+  <table class="table table-striped table-hover">
+    <thead>
 
     <tr>
-      <th>ID</th>
       <th>Название</th>
       <th>Тип</th>
-      <th>Приоритет</th>
-      <th>Контролирующий</th>
+      <th>Входной ip</th>
+      <th>Выходной ip</th>
+      <th>Контролирующие</th>
       <th>Детали</th>
     </tr>
-  </thead>
-  <tbody>
-  <tr th:each="channel : ${channels}">
-    <td th:text="${channel.id}"></td>
-    <td th:text="${channel.name}"></td>
-    <td th:text="${channel.type}"></td>
-    <td th:text="${channel.priority}"></td>
-    <td th:text="${channel.user.name} + ' ' + ${channel.user.surname}"></td>
-    <td>
-      <a th:href="${'/channeldetails/' + channel.id}" class="btn btn-primary">Детали</a>
-    </td>
-  </tr>
-  </tbody>
-</table>
-  <button class="btn btn-primary m-3" data-bs-toggle="modal" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')"
-          data-bs-target="#addChannel">Добавить канал</button>
+    </thead>
+    <tbody>
+    <tr th:each="channel : ${channels}">
+
+      <td th:text="${channel.name}"></td>
+      <td th:text="${channel.type}"></td>
+      <td th:text="${channel.inAddress}"></td>
+      <td th:text="${channel.outAddress}"></td>
+      <td>
+        <div th:each="ch : ${channel.getUser()}">
+          <p th:text="${ch.name} + ' ' + ${ch.surname}"></p>
+        </div>
+
+      </td>
+      <td>
+        <a th:href="${'/channeldetails/' + channel.id}" class="btn btn-primary">Детали</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <button class="btn btn-primary m-3" data-bs-toggle="modal"
+          sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ENGINEER')"
+          data-bs-target="#addChannel">Добавить канал
+  </button>
 </div>
 <form th:action="${'/addChannel'}" method="post">
   <div class="modal fade" id="addChannel" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -73,9 +81,21 @@
             <option>Низкий</option>
           </select>
           <label class="form-label">Отвественный</label>
-          <select name="user" class="form-select">
-            <option th:each="user : ${users}" th:text="${user.name} + ' ' + ${user.surname}" th:value="${user.id}"></option>
-          </select>
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th>Выбрать</th>
+              <th>Выбрать оператора</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="operator : ${users}">
+              <td><input type="checkbox" name="user" th:value="${operator.id}"></td>
+              <td th:text="${operator.name} + ' ' +${operator.surname}"></td>
+            </tr>
+            </tbody>
+          </table>
+
           <label class="form-label">Описание</label>
           <textarea name="description" type="text" class="form-control"></textarea>
         </div>

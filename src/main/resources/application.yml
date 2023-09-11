@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:4321/almatv-db
+    username: postgres
+    password: qwe
+  flyway:
+    url: jdbc:postgresql://localhost:4321/almatv-db
+    user: postgres
+    password: qwe
+    locations: classpath:db/migration
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+server:
+  port: 8080
