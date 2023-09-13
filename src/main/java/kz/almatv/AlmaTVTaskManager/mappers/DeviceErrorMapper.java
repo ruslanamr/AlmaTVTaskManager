@@ -12,9 +12,6 @@ import org.mapstruct.factory.Mappers;
 public interface DeviceErrorMapper {
 
   DeviceErrorMapper INSTANCE = Mappers.getMapper(DeviceErrorMapper.class);
-
-  DeviceErrorStrName tostr(DeviceError deviceError);
-
   List<DeviceErrorStrName> toList(List<DeviceError> deviceErrors);
 
 }

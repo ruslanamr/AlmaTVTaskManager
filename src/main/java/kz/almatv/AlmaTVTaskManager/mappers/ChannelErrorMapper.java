@@ -10,9 +10,8 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(builder = @Builder(disableBuilder = true))
 public interface ChannelErrorMapper {
-    ChannelErrorMapper INSTANCE = Mappers.getMapper(ChannelErrorMapper.class);
-    ChannelErrorsStrName tostr (ChannelError channelError);
 
-   List<ChannelErrorsStrName> toList (List<ChannelError> channelError);
+  ChannelErrorMapper INSTANCE = Mappers.getMapper(ChannelErrorMapper.class);
+  List<ChannelErrorsStrName> toList(List<ChannelError> channelError);
 
 }
